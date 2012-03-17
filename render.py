@@ -7,41 +7,48 @@ import pygments
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 
-with codecs.open('presentation.html', 'w', encoding='utf8') as outfile:
-    md_src = codecs.open('slides.md', encoding='utf8').read()
-    slides_src = markdown.markdown(md_src).split('<hr />\n')
 
-    title = slides_src.pop(0)
+def make_slide(ifile='slides.md',
+        ofile='presentation.html', templatefile="base.html"):
+    with codecs.open(ofile, 'w', encoding='utf8') as outfile:
+        md_src = codecs.open(ifile, encoding='utf8').read()
+        slides_src = markdown.markdown(md_src).split('<hr />\n')
 
-    head_title = title.split('>')[1].split('<')[0]
+        title = slides_src.pop(0)
 
-    slides = []
+        head_title = title.split('>')[1].split('<')[0]
 
-    for slide_src in slides_src:
-        header, content = slide_src.split('\n', 1)
+        slides = []
 
-        while '<code>!' in content:
-            lang_match = re.search('<code>!(.+)\n', content)
+        for slide_src in slides_src:
+            header, content = slide_src.split('\n', 1)
 
-            if lang_match:
-                lang = lang_match.group(1)
-                code = content.split(lang, 1)[1].split('</code', 1)[0]
+            while '<code>!' in content:
+                lang_match = re.search('<code>!(.+)\n', content)
 
-                lexer = get_lexer_by_name(lang)
+                if lang_match:
+                    lang = lang_match.group(1)
+                    code = content.split(lang, 1)[1].split('</code', 1)[0]
 
-                formatter = HtmlFormatter(linenos='inline', noclasses=True,
-                                          nobackground=True)
+                    lexer = get_lexer_by_name(lang)
 
-                pretty_code = pygments.highlight(code, lexer, formatter)
-                pretty_code = pretty_code.replace('&amp;', '&')
+                    formatter = HtmlFormatter(linenos='inline', noclasses=True,
+                                              nobackground=True)
 
-                before_code = content.split('<code>', 1)[0]
-                after_code = content.split('</code>', 1)[1]
+                    pretty_code = pygments.highlight(code, lexer, formatter)
+                    pretty_code = pretty_code.replace('&amp;', '&')
 
-                content = before_code + pretty_code + after_code
+                    before_code = content.split('<code>', 1)[0]
+                    after_code = content.split('</code>', 1)[1]
 
-        slides.append({'header': header, 'content': content})
+                    content = before_code + pretty_code + after_code
 
-    template = jinja2.Template(open('base.html').read())
+            slides.append({'header': header, 'content': content})
 
-    outfile.write(template.render(locals()))
+        template = jinja2.Template(open(templatefile).read())
+
+        outfile.write(template.render(locals()))
+
+
+if __name__ == '__main__':
+    make_slide()
