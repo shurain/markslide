@@ -21,3 +21,15 @@ Requirements
 - `jinja2`
 - `markdown`
 - `pygments`
+
+Usages
+------
+
+Create `slides.md` file as an input.
+
+`python markslide.py`
+
+To create `presentation.html`.
+
+Refer to slides.md for examples of markdown usage.
+Also, refer to `markslide.py` for function arguments.
